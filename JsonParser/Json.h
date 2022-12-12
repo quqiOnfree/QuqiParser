@@ -397,3 +397,4 @@ namespace qjson
 		JValueType m_type;
 	};
 }
+
