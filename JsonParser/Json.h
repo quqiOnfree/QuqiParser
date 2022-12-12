@@ -317,6 +317,18 @@ namespace qjson
 			}
 		}
 
+		bool hasMember(const std::string& str)
+		{
+			if (m_type == JValueType::JDict)
+			{
+				dict_t* local = std::get_if<dict_t>(m_value);
+				if (local->find(str) != local->end())
+					return true;
+				return false;
+			}
+			throw std::exception("The type isn't JDict, 类型不是JDict.");
+		}
+
 		JValueType getType() const
 		{
 			return m_type;
