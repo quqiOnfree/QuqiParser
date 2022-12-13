@@ -408,5 +408,80 @@ namespace qjson
 		value_t* m_value;
 		JValueType m_type;
 	};
+
+	class JWriter
+	{
+	public:
+		JWriter() = default;
+
+		std::string write(const JObject& jo)
+		{
+			switch (jo.getType())
+			{
+			case JValueType::JNull:
+				return "null";
+
+			case JValueType::JInt:
+				return std::move(std::to_string(jo.getInt()));
+
+			case JValueType::JDouble:
+				return std::move(std::to_string(jo.getDouble()));
+
+			case JValueType::JBool:
+				if (jo.getBool())
+					return "true";
+				return "false";
+
+			case JValueType::JString:
+				return jo.getString();
+
+			case JValueType::JList:
+			{
+				std::string localString;
+				list_t& list = jo.getList();
+				localString += '[';
+				for (auto itor = list.begin(); itor != list.end(); itor++)
+				{
+					localString += write(*itor);
+					if (itor + 1 != list.end())
+					{
+						localString += ',';
+					}
+				}
+				localString += ']';
+
+				return std::move(localString);
+			}
+
+			case JValueType::JDict:
+			{
+				std::string localString;
+				dict_t& dict = jo.getDict();
+				localString += '{';
+				for (auto itor = dict.begin(), itor2 = dict.begin(); itor != dict.end(); itor++)
+				{
+					localString += itor->first + ':' + write(itor->second);
+					itor2 = itor;
+					if (++itor2 != dict.end())
+					{
+						localString += ',';
+					}
+				}
+				localString += '}';
+
+				return std::move(localString);
+			}
+
+			default:
+				return "";
+			}
+		}
+
+		static std::string fastWrite(const JObject& jo)
+		{
+			static JWriter jw;
+			return std::move(jw.write(jo));
+		}
+	};
 }
 
