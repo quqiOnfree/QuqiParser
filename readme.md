@@ -1,11 +1,11 @@
-﻿## JsonParser Json解析器
+﻿# JsonParser Json解析器
 
-# 解析器的基本性质
+## 解析器的基本性质
 - 还没测效率，估计不低（比jsoncpp快就行）
 - 报错使用std::exception
 - 有三个Class，分别是JObject（用于存Json数据）、JParser（Json数据读取）、JWriter（Json数据写出）
 
-# 解析器的使用
+## 解析器的使用
 - json的数据类型
 ```
 enum class JValueType
@@ -30,7 +30,7 @@ using list_t = std::vector<JObject>;
 using dict_t = std::unordered_map<std::string, JObject>;
 ```
 
-# class JObject
+## class JObject
 - 类型的定义
 ```
 //null类型（直接生成）
@@ -89,7 +89,7 @@ std::unordered_map<std::string, JObject> get = json.getDict();
 dict_t get = json.getDict();
 ```
 
-# class JParser
+## class JParser
 - 数据的读取
 ```
 string jsonString = R"(
@@ -103,7 +103,7 @@ string jsonString = R"(
 JObject json = JParser::fastParse(jsonString);
 ```
 
-# class JWriter
+## class JWriter
 - 数据的写出
 ```
 JObject json["awa"];
