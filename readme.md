@@ -7,7 +7,7 @@
 
 # 解析器的使用
 - json的数据类型
-'''
+```
 enum class JValueType
 {
 	JNull,
@@ -28,11 +28,11 @@ using double_t = long double;
 using string_t = std::string;
 using list_t = std::vector<JObject>;
 using dict_t = std::unordered_map<std::string, JObject>;
-'''
+```
 
 # class JObject
 - 类型的定义
-'''
+```
 //null类型（直接生成）
 JObject json;
 
@@ -55,9 +55,9 @@ JObject json.push_back(1);
 
 //dict类型（std::unordered_map<std::string, JObject>）
 JObject json["awa"] = 1;
-'''
+```
 - 数据的获取
-'''
+```
 //int类型（long long）
 JObject json = 1;
 long long get = json.getInt();
@@ -87,11 +87,11 @@ long long get = json["awa"].getInt();
 //或者
 std::unordered_map<std::string, JObject> get = json.getDict();
 dict_t get = json.getDict();
-'''
+```
 
 # class JParser
 - 数据的读取
-'''
+```
 string jsonString = R"(
 {
     "a":"hello",
@@ -101,11 +101,11 @@ string jsonString = R"(
 }
 )";
 JObject json = JParser::fastParse(jsonString);
-'''
+```
 
 # class JWriter
 - 数据的写出
-'''
+```
 JObject json["awa"];
 std::string get = JWriter::fastWrite(json);
 /*
@@ -118,4 +118,4 @@ std::string get = JWriter::fastFormatWrite(json);
 	"awa":1
 }
 */
-'''
+```
