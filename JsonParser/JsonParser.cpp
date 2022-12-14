@@ -9,7 +9,10 @@ int main()
 {
     qjson::JObject json;
     json["qwq"] = true;
-    json["awa"][0] = 1;
+    json["awa"][1] = 0;
+    json["awa"].push_back("你好");
+    json["awa"].push_back(1);
+    json["awa"].push_back(0.1);
 
     cout << qjson::JWriter::fastWrite(json) << '\n';
 

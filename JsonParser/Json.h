@@ -1,7 +1,5 @@
 ﻿#pragma once
 
-#include <iostream>
-#include <fstream>
 #include <string>
 #include <memory>
 #include <vector>
@@ -9,6 +7,7 @@
 #include <variant>
 #include <string_view>
 #include <exception>
+#include <sstream>
 
 namespace qjson
 {
@@ -115,11 +114,23 @@ namespace qjson
 		{
 			*m_value = static_cast<long double>(value);
 		}
-		JObject(std::string_view data)
+		JObject(const char* data)
 			:m_type(JValueType::JString),
 			m_value(new value_t)
 		{
 			*m_value = std::string(data);
+		}
+		JObject(const std::string& data)
+			:m_type(JValueType::JString),
+			m_value(new value_t)
+		{
+			*m_value = data;
+		}
+		JObject(std::string&& data)
+			:m_type(JValueType::JString),
+			m_value(new value_t)
+		{
+			*m_value = std::move(data);
 		}
 
 		~JObject()
@@ -416,65 +427,73 @@ namespace qjson
 
 		std::string write(const JObject& jo)
 		{
+			std::ostringstream os;
+
 			switch (jo.getType())
 			{
 			case JValueType::JNull:
-				return "null";
+				os << "null";
+				break;
 
 			case JValueType::JInt:
-				return std::move(std::to_string(jo.getInt()));
+				os << jo.getInt();
+				break;
 
 			case JValueType::JDouble:
-				return std::move(std::to_string(jo.getDouble()));
+				os << jo.getDouble();
+				break;
 
 			case JValueType::JBool:
 				if (jo.getBool())
-					return "true";
-				return "false";
+				{
+					os << "true";
+					break;
+				}
+				os << "false";
+				break;
 
 			case JValueType::JString:
-				return jo.getString();
+				os << '\"' << jo.getString() << '\"';
+				break;
 
 			case JValueType::JList:
 			{
-				std::string localString;
 				list_t& list = jo.getList();
-				localString += '[';
+				os << '[';
 				for (auto itor = list.begin(); itor != list.end(); itor++)
 				{
-					localString += write(*itor);
+					os << write(*itor);
 					if (itor + 1 != list.end())
 					{
-						localString += ',';
+						os << ',';
 					}
 				}
-				localString += ']';
-
-				return std::move(localString);
+				os << ']';
+				break;
 			}
 
 			case JValueType::JDict:
 			{
-				std::string localString;
 				dict_t& dict = jo.getDict();
-				localString += '{';
+				os << '{';
 				for (auto itor = dict.begin(), itor2 = dict.begin(); itor != dict.end(); itor++)
 				{
-					localString += itor->first + ':' + write(itor->second);
+					os << '\"' << itor->first << "\":" << write(itor->second);
 					itor2 = itor;
 					if (++itor2 != dict.end())
 					{
-						localString += ',';
+						os << ',';
 					}
 				}
-				localString += '}';
-
-				return std::move(localString);
+				os << '}';
+				break;
 			}
 
 			default:
-				return "";
+				break;
 			}
+
+			return os.str();
 		}
 
 		static std::string fastWrite(const JObject& jo)
