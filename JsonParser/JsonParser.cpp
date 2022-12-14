@@ -7,6 +7,18 @@ using namespace std;
 
 int main()
 {
+    string jsonString = R"(
+{
+    "a":"hello",
+    "b":[1,2,3,4],
+    "c":false,
+    "d":false,
+}
+)";
+
+    cout << qjson::JParser::fastParse(jsonString)["c"].getBool() << '\n';
+
+    /*
     qjson::JObject json;
     json["qwq"] = true;
     json["awa"][1] = 0;
@@ -15,6 +27,7 @@ int main()
     json["awa"].push_back(0.1);
 
     cout << qjson::JWriter::fastFormatWrite(json) << '\n';
+    */
 
     /*
     clock_t st = clock();

@@ -8,6 +8,7 @@
 #include <string_view>
 #include <exception>
 #include <sstream>
+#include <cmath>
 
 namespace qjson
 {
@@ -418,6 +419,227 @@ namespace qjson
 	private:
 		value_t* m_value;
 		JValueType m_type;
+	};
+
+	class JParser
+	{
+	public:
+		JParser() = default;
+
+		JObject parse(std::string_view data)
+		{
+			size_t itor = 0;
+			return _parse(data, itor);
+		}
+
+		static JObject fastParse(const std::string_view data)
+		{
+			static JParser jp;
+			size_t itor = 0;
+			return jp._parse(data, itor);
+		}
+
+	protected:
+		JObject _parse(std::string_view data, size_t& itor)
+		{
+			skipSpace(data, itor);
+			if (data[itor] == '{')
+			{
+				JObject localJO;
+				itor++;
+				while (itor < data.size() && data[itor] != '}')
+				{
+					skipSpace(data, itor);
+					std::string key(getString(data, itor));
+					skipSpace(data, itor);
+					if (data[itor] == ':')
+						itor++;
+					else
+						throw std::exception("Lnvalid input");
+					skipSpace(data, itor);
+					localJO[key.c_str()] = _parse(data, itor);
+					skipSpace(data, itor);
+					if (data[itor] != ',' && data[itor] != '}')
+						throw std::exception("Lnvalid input");
+					else if (data[itor] == '}')
+					{
+						itor++;
+						return localJO;
+					}
+					itor++;
+					skipSpace(data, itor);
+				}
+				if (data[itor] == '}')
+					return localJO;
+				else
+					throw std::exception("Lnvalid input");
+			}
+			else if (data[itor] == '[')
+			{
+				JObject localJO;
+				itor++;
+				while (itor < data.size() && data[itor] != ']')
+				{
+					skipSpace(data, itor);
+					localJO.push_back(_parse(data, itor));
+					skipSpace(data, itor);
+					if (data[itor] != ',' && data[itor] != ']')
+						throw std::exception("Lnvalid input");
+					else if (data[itor] == ']')
+					{
+						itor++;
+						return localJO;
+					}
+					itor++;
+					skipSpace(data, itor);
+				}
+				if (data[itor] == ']')
+					return localJO;
+				else
+					throw std::exception("Lnvalid input");
+			}
+			else if (data[itor] == '\"')
+			{
+				return getString(data, itor);
+			}
+			else if (data[itor] == 'n')
+			{
+				return getNull(data, itor);
+			}
+			else if (data[itor] == 't' || data[itor] == 'f')
+			{
+				return getBool(data, itor);
+			}
+			else if ((data[itor] >= '0' && data[itor] <= '9') || data[itor] == '-')
+			{
+				return getNumber(data, itor);
+			}
+			else
+				throw std::exception("Lnvalid input");
+		}
+
+		void skipSpace(std::string_view data, size_t& itor)
+		{
+			while (itor < data.size() && (data[itor] == ' ' || data[itor] == '\t' || data[itor] == '\n'))
+			{
+				itor++;
+			}
+		}
+
+		std::string getString(std::string_view data, size_t& itor)
+		{
+			if (data[itor] == '\"')
+			{
+				std::ostringstream os;
+				itor++;
+				while (itor < data.size() && data[itor] != '\"')
+				{
+					if (data[itor] == '\\')
+					{
+						itor++;
+						os << data[itor];
+					}
+					else
+					{
+						os << data[itor];
+					}
+					itor++;
+				}
+				if (itor >= data.size())
+					throw std::exception("Lnvalid input");
+				itor++;
+				return os.str();
+			}
+			else
+				throw std::exception("Lnvalid input");
+		}
+
+		JObject getNumber(std::string_view data, size_t& itor)
+		{
+			bool isDouble = false;
+			bool firstNum = false;
+			bool isNegative = false;
+			if (data[itor] == '-')
+			{
+				isNegative = true;
+				itor++;
+			}
+			size_t count = 0;
+			size_t start = itor;
+
+			while (itor < data.size() && ((data[itor] >= '0' && data[itor] <= '9') || data[itor] == '.'))
+			{
+				if (!firstNum && data[itor] >= '0' && data[itor] <= '9')
+				{
+					firstNum = true;
+				}
+				else if (isDouble)
+				{
+					count++;
+				}
+				else if (data[itor] == '.')
+				{
+					if (!firstNum)
+						throw std::exception("Lnvalid input");
+					isDouble = true;
+					itor++;
+					continue;
+				}
+				itor++;
+			}
+
+			if (isDouble)
+			{
+				long double number = data[itor - 1] - '0';
+				size_t single = 10;
+				for (long long i = itor - 2; i >= static_cast<long long>(start); --i, single *= 10)
+				{
+					if (data[i] == '.')
+						continue;
+					number += single * (data[i] - '0');
+				}
+				if (isNegative)
+					number *= -1;
+				return number / std::pow(10, count);
+			}
+			else
+			{
+				long long number = data[itor - 1] - '0';
+				size_t single = 10;
+				for (long long i = itor - 2; i >= static_cast<long long>(start); --i, single *= 10)
+				{
+					number += single * (data[i] - '0');
+				}
+				if (isNegative)
+					number *= -1;
+				return number;
+			}
+		}
+
+		JObject getBool(std::string_view data, size_t& itor)
+		{
+			if (data.size() >= itor + 4 && data[itor] == 't' && data[itor + 1] == 'r' && data[itor + 2] == 'u' && data[itor + 3] == 'e')
+			{
+				itor += 4;
+				return true;
+			}
+			else if (data.size() >= itor + 5 && data[itor] == 'f' && data[itor + 1] == 'a' && data[itor + 2] == 'l' && data[itor + 3] == 's' && data[itor + 4] == 'e')
+			{
+				itor += 5;
+				return false;
+			}
+			throw std::exception("Lnvalid input");
+		}
+
+		JObject getNull(std::string_view data, size_t& itor)
+		{
+			if (data.size() >= itor + 4 && data[itor] == 'n' && data[itor + 1] == 'u' && data[itor + 2] == 'l' && data[itor + 3] == 'l')
+			{
+				itor += 4;
+				return JObject();
+			}
+			throw std::exception("Lnvalid input");
+		}
 	};
 
 	class JWriter
