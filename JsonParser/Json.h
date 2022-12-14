@@ -496,10 +496,105 @@ namespace qjson
 			return os.str();
 		}
 
+		std::string formatWrite(const JObject& jo,size_t n = 1)
+		{
+			std::ostringstream os;
+
+			switch (jo.getType())
+			{
+			case JValueType::JNull:
+				os << "null";
+				break;
+
+			case JValueType::JInt:
+				os << jo.getInt();
+				break;
+
+			case JValueType::JDouble:
+				os << jo.getDouble();
+				break;
+
+			case JValueType::JBool:
+				if (jo.getBool())
+				{
+					os << "true";
+					break;
+				}
+				os << "false";
+				break;
+
+			case JValueType::JString:
+				os << '\"' << jo.getString() << '\"';
+				break;
+
+			case JValueType::JList:
+			{
+				list_t& list = jo.getList();
+				os << "[\n";
+				for (auto itor = list.begin(); itor != list.end(); itor++)
+				{
+					for (size_t i = 0; i < n; i++)
+					{
+						os << "    ";
+					}
+					os << formatWrite(*itor, n + 1);
+					if (itor + 1 != list.end())
+					{
+						os << ",\n";
+					}
+				}
+				os << '\n';
+				for (size_t i = 0; i < n - 1; i++)
+				{
+					os << "    ";
+				}
+				os << "]";
+				break;
+			}
+
+			case JValueType::JDict:
+			{
+				dict_t& dict = jo.getDict();
+				os << "{\n";
+				for (auto itor = dict.begin(), itor2 = dict.begin(); itor != dict.end(); itor++)
+				{
+					for (size_t i = 0; i < n; i++)
+					{
+						os << "    ";
+					}
+					os << '\"' << itor->first << "\": " << formatWrite(itor->second, n + 1);
+					itor2 = itor;
+					if (++itor2 != dict.end())
+					{
+						os << ",\n";
+					}
+				}
+				os << '\n';
+				for (size_t i = 0; i < n - 1; i++)
+				{
+					os << "    ";
+				}
+				os << "}";
+				break;
+			}
+
+			default:
+				break;
+			}
+
+			return os.str();
+		}
+
 		static std::string fastWrite(const JObject& jo)
 		{
 			static JWriter jw;
 			return std::move(jw.write(jo));
+		}
+
+		static std::string fastFormatWrite(const JObject& jo)
+		{
+			static JWriter jw;
+			return std::move(jw.formatWrite(jo));
 		}
 	};
 }

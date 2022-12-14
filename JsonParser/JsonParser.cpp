@@ -14,7 +14,7 @@ int main()
     json["awa"].push_back(1);
     json["awa"].push_back(0.1);
 
-    cout << qjson::JWriter::fastWrite(json) << '\n';
+    cout << qjson::JWriter::fastFormatWrite(json) << '\n';
 
     /*
     clock_t st = clock();
