@@ -40,6 +40,7 @@ namespace qjson
 			:m_type(JValueType::JNull),
 			m_value(new value_t)
 		{
+			*m_value = 0ll;
 		}
 		JObject(const JObject& jo)
 			:m_type(jo.m_type),
@@ -214,16 +215,78 @@ namespace qjson
 			if (this == &jo)
 				return *this;
 
+			if (m_value != nullptr)
+				delete m_value;
 			m_type = jo.m_type;
 			m_value = jo.m_value;
 			jo.m_value = nullptr;
 
 			return *this;
 		}
-		/*bool operator ==(const JObject& jo)
+		bool operator ==(const JObject& jo)
 		{
-			return true;
-		}*/
+			if (m_type != jo.m_type)
+				return false;
+			switch (jo.m_type)
+			{
+			case JValueType::JNull:
+				return true;
+			case JValueType::JInt:
+				if (getInt() == jo.getInt())
+					return true;
+				return false;
+			case JValueType::JDouble:
+				if (getDouble() == jo.getDouble())
+					return true;
+				return false;
+			case JValueType::JBool:
+				if (getBool() == jo.getBool())
+					return true;
+				return false;
+			case JValueType::JString:
+				if (getString() == jo.getString())
+					return true;
+				return false;
+			case JValueType::JList:
+			{
+				list_t& local = getList();
+				list_t& jolist = jo.getList();
+				if (local.empty() ^ jolist.empty())
+					return false;
+				if (local.size() != jolist.size())
+					return false;
+				for (size_t i = 0; i < local.size(); i++)
+				{
+					if (!(local[i] == jolist[i]))
+					{
+						return false;
+					}
+				}
+				return true;
+			}
+
+			case JValueType::JDict:
+			{
+				dict_t& local = getDict();
+				dict_t& joDict = jo.getDict();
+				if (local.empty() ^ joDict.empty())
+					return false;
+				if (local.size() != joDict.size())
+					return false;
+				for (auto i = local.begin(); i != local.end(); i++)
+				{
+					if (joDict.find(i->first) == joDict.end())
+						return false;
+					else if (!(i->second == joDict[i->first]))
+						return false;
+				}
+				return true;
+			}
+
+			default:
+				return false;
+			}
+		}
 		bool operator ==(JValueType type)
 		{
 			if (m_type == type)
@@ -530,25 +593,25 @@ namespace qjson
 		{
 			if (data[itor] == '\"')
 			{
-				std::ostringstream os;
+				std::string str;
 				itor++;
 				while (itor < data.size() && data[itor] != '\"')
 				{
 					if (data[itor] == '\\')
 					{
 						itor++;
-						os << data[itor];
+						str += data[itor];
 					}
 					else
 					{
-						os << data[itor];
+						str += data[itor];
 					}
 					itor++;
 				}
 				if (itor >= data.size())
 					throw std::exception("Lnvalid input");
 				itor++;
-				return os.str();
+				return std::move(str);
 			}
 			else
 				throw std::exception("Lnvalid input");
@@ -649,65 +712,65 @@ namespace qjson
 
 		std::string write(const JObject& jo)
 		{
-			std::ostringstream os;
+			std::string str;
 
 			switch (jo.getType())
 			{
 			case JValueType::JNull:
-				os << "null";
+				str += "null";
 				break;
 
 			case JValueType::JInt:
-				os << jo.getInt();
+				str += jo.getInt();
 				break;
 
 			case JValueType::JDouble:
-				os << jo.getDouble();
+				str += jo.getDouble();
 				break;
 
 			case JValueType::JBool:
 				if (jo.getBool())
 				{
-					os << "true";
+					str += "true";
 					break;
 				}
-				os << "false";
+				str += "false";
 				break;
 
 			case JValueType::JString:
-				os << '\"' << jo.getString() << '\"';
+				str += '\"' + jo.getString() + '\"';
 				break;
 
 			case JValueType::JList:
 			{
 				list_t& list = jo.getList();
-				os << '[';
+				str += '[';
 				for (auto itor = list.begin(); itor != list.end(); itor++)
 				{
-					os << write(*itor);
+					str += write(*itor);
 					if (itor + 1 != list.end())
 					{
-						os << ',';
+						str += ',';
 					}
 				}
-				os << ']';
+				str += ']';
 				break;
 			}
 
 			case JValueType::JDict:
 			{
 				dict_t& dict = jo.getDict();
-				os << '{';
+				str += '{';
 				for (auto itor = dict.begin(), itor2 = dict.begin(); itor != dict.end(); itor++)
 				{
-					os << '\"' << itor->first << "\":" << write(itor->second);
+					str += '\"' + itor->first + "\":" + write(itor->second);
 					itor2 = itor;
 					if (++itor2 != dict.end())
 					{
-						os << ',';
+						str += ',';
 					}
 				}
-				os << '}';
+				str += '}';
 				break;
 			}
 
@@ -715,88 +778,88 @@ namespace qjson
 				break;
 			}
 
-			return os.str();
+			return std::move(str);
 		}
 
 		std::string formatWrite(const JObject& jo,size_t n = 1)
 		{
-			std::ostringstream os;
+			std::string str;
 
 			switch (jo.getType())
 			{
 			case JValueType::JNull:
-				os << "null";
+				str += "null";
 				break;
 
 			case JValueType::JInt:
-				os << jo.getInt();
+				str += jo.getInt();
 				break;
 
 			case JValueType::JDouble:
-				os << jo.getDouble();
+				str += jo.getDouble();
 				break;
 
 			case JValueType::JBool:
 				if (jo.getBool())
 				{
-					os << "true";
+					str += "true";
 					break;
 				}
-				os << "false";
+				str += "false";
 				break;
 
 			case JValueType::JString:
-				os << '\"' << jo.getString() << '\"';
+				str += '\"' + jo.getString() + '\"';
 				break;
 
 			case JValueType::JList:
 			{
 				list_t& list = jo.getList();
-				os << "[\n";
+				str += "[\n";
 				for (auto itor = list.begin(); itor != list.end(); itor++)
 				{
 					for (size_t i = 0; i < n; i++)
 					{
-						os << "    ";
+						str += "    ";
 					}
-					os << formatWrite(*itor, n + 1);
+					str += formatWrite(*itor, n + 1);
 					if (itor + 1 != list.end())
 					{
-						os << ",\n";
+						str += ",\n";
 					}
 				}
-				os << '\n';
+				str += '\n';
 				for (size_t i = 0; i < n - 1; i++)
 				{
-					os << "    ";
+					str += "    ";
 				}
-				os << "]";
+				str += "]";
 				break;
 			}
 
 			case JValueType::JDict:
 			{
 				dict_t& dict = jo.getDict();
-				os << "{\n";
+				str += "{\n";
 				for (auto itor = dict.begin(), itor2 = dict.begin(); itor != dict.end(); itor++)
 				{
 					for (size_t i = 0; i < n; i++)
 					{
-						os << "    ";
+						str += "    ";
 					}
-					os << '\"' << itor->first << "\": " << formatWrite(itor->second, n + 1);
+					str += '\"' + itor->first + "\": " + formatWrite(itor->second, n + 1);
 					itor2 = itor;
 					if (++itor2 != dict.end())
 					{
-						os << ",\n";
+						str += ",\n";
 					}
 				}
-				os << '\n';
+				str += '\n';
 				for (size_t i = 0; i < n - 1; i++)
 				{
-					os << "    ";
+					str += "    ";
 				}
-				os << "}";
+				str += "}";
 				break;
 			}
 
@@ -804,7 +867,7 @@ namespace qjson
 				break;
 			}
 
-			return os.str();
+			return std::move(str);
 		}
 
 		static std::string fastWrite(const JObject& jo)

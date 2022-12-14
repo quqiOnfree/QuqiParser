@@ -16,7 +16,8 @@ int main()
 }
 )";
 
-    cout << qjson::JWriter::fastFormatWrite(qjson::JParser::fastParse(jsonString)) << '\n';
+    auto a = qjson::JParser::fastParse(jsonString);
+    cout << (a == a) << '\n';
 
     return 0;
 }
