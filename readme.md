@@ -58,35 +58,55 @@ JObject json["awa"] = 1;
 ```
 - 数据的获取
 ```
+//判断数据类型
+json.getType()
+返回enum class JValueType
+
 //int类型（long long）
 JObject json = 1;
 long long get = json.getInt();
+//or
+long long get = json;
 
 //double类型（long double）
 long double get = json.getDouble();
+//or
+long double get = json;
 
 //bool类型（bool）
 JObject json = true;
 bool get = json.getBool();
+//or
+bool get = json;
 
 //string类型（std::string）
 JObject json = "Hello world!";
 std::string get = json.getString();
+//or
+std::string get = json;
 
 //list类型（std::vector<JObject>）
 JObject json[0] = 1;
 
 long long get = json[0].getInt();
+long long get = json[0];
 //或者
 std::vector<JObject> get = json.getList();
 list_t get = json.getList();
+//or
+list_t get = json;
+long long getnum = get[0];
 
 //dict类型（std::unordered_map<std::string, JObject>）
 JObject json["awa"] = 1;
 long long get = json["awa"].getInt();
+//or
+long long get = json["awa"];
 //或者
 std::unordered_map<std::string, JObject> get = json.getDict();
 dict_t get = json.getDict();
+//or
+dict_t get = json;
 ```
 
 ## class JParser
