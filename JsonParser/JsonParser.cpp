@@ -17,7 +17,7 @@ int main()
 )";
 
     //auto a = qjson::JParser::fastParse(jsonString);
-    qjson::JObject json = "a\n1";
+    qjson::JObject json = "a\n12";
     auto a = qjson::JParser::fastParse(qjson::JWriter::fastWrite(json));
     cout << string(a) << '\n';
 

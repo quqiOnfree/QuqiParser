@@ -128,6 +128,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Json.cpp" />
     <ClCompile Include="JsonParser.cpp" />
   </ItemGroup>
   <ItemGroup>
