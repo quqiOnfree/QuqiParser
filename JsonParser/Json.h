@@ -600,7 +600,36 @@ namespace qjson
 					if (data[itor] == '\\')
 					{
 						itor++;
-						str += data[itor];
+						switch (data[itor])
+						{
+						case 'n':
+							str += '\n';
+							break;
+						case 'b':
+							str += "\b";
+							break;
+						case 'f':
+							str += "\f";
+							break;
+						case 'r':
+							str += "\r";
+							break;
+						case 't':
+							str += "\t";
+							break;
+						case '\\':
+							str += "\\";
+							break;
+						case '\'':
+							str += "\'";
+							break;
+						case '\"':
+							str += "\"";
+							break;
+						default:
+							throw std::exception("Lnvalid string");
+							break;
+						}
 					}
 					else
 					{
