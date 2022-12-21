@@ -489,7 +489,11 @@ namespace qjson
 
 	JObject JParser::_parse(std::string_view data, size_t& itor)
 	{
+		if (data.empty())
+			throw std::exception("Lnvalid input");
 		skipSpace(data, itor);
+		if (data.size() <= itor)
+			throw std::exception("Lnvalid input");
 		if (data[itor] == '{')
 		{
 			JObject localJO;
@@ -728,11 +732,11 @@ namespace qjson
 			break;
 
 		case JValueType::JInt:
-			str += jo.getInt();
+			str += std::to_string(jo.getInt());
 			break;
 
 		case JValueType::JDouble:
-			str += jo.getDouble();
+			str += std::to_string(jo.getDouble());
 			break;
 
 		case JValueType::JBool:
@@ -838,11 +842,11 @@ namespace qjson
 			break;
 
 		case JValueType::JInt:
-			str += jo.getInt();
+			str += std::to_string(jo.getInt());
 			break;
 
 		case JValueType::JDouble:
-			str += jo.getDouble();
+			str += std::to_string(jo.getDouble());
 			break;
 
 		case JValueType::JBool:
@@ -954,7 +958,7 @@ namespace qjson
 
 		return std::move(str);
 	}
-	
+
 	std::string  JWriter::fastWrite(const JObject& jo)
 	{
 		static JWriter jw;
