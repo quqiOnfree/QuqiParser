@@ -541,7 +541,7 @@ namespace qjson
 			throw std::exception("Lnvalid input");
 		if (data[itor] == '{')
 		{
-			JObject localJO;
+			JObject localJO(JValueType::JDict);
 			itor++;
 			while (itor < data.size() && data[itor] != '}')
 			{
@@ -572,7 +572,7 @@ namespace qjson
 		}
 		else if (data[itor] == '[')
 		{
-			JObject localJO;
+			JObject localJO(JValueType::JList);
 			itor++;
 			while (itor < data.size() && data[itor] != ']')
 			{
@@ -623,7 +623,7 @@ namespace qjson
 			throw std::exception("Lnvalid input");
 		if (data[itor] == '{')
 		{
-			u8JObject localJO;
+			u8JObject localJO(JValueType::JDict);
 			itor++;
 			while (itor < data.size() && data[itor] != u8'}')
 			{
@@ -654,7 +654,7 @@ namespace qjson
 		}
 		else if (data[itor] == u8'[')
 		{
-			u8JObject localJO;
+			u8JObject localJO(JValueType::JList);
 			itor++;
 			while (itor < data.size() && data[itor] != u8']')
 			{
@@ -2006,6 +2006,6 @@ namespace qjson
 	std::u8string JWriter::u8fastFormatWrite(const u8JObject& jo)
 	{
 		static JWriter jw;
-		return std::move(jw.u8FormatWrite(jo));
+		return std::move(jw.u8formatWrite(jo));
 	}
 }

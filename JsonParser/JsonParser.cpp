@@ -7,16 +7,9 @@ using namespace std;
 
 int main()
 {
-    string jsonString = R"(
-{
-    "a":"hello\n",
-    "b":[1,2,3,4],
-    "c":false,
-    "d":null,
-}
-)";
+    system("chcp 65001");
 
-    qjson::u8JObject json = qjson::JParser::u8fastParse(u8"{\"hi\":{}}");
+    qjson::u8JObject json = qjson::JParser::u8fastParse(u8"{\"hi\":\"你好\"}");
     cout<<(char*)qjson::JWriter::u8fastWrite(json).c_str();
 
     return 0;
