@@ -16,10 +16,8 @@ int main()
 }
 )";
 
-    //auto a = qjson::JParser::fastParse(jsonString);
-    qjson::JObject json = "   ";
-    auto a = qjson::JParser::fastParse(qjson::JWriter::fastWrite(json));
-    cout << string(a) << '\n';
+    qjson::u8JObject json = qjson::JParser::u8fastParse(u8"{\"hi\":{}}");
+    cout<<(char*)qjson::JWriter::u8fastWrite(json).c_str();
 
     return 0;
 }
