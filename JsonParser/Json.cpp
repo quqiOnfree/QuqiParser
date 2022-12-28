@@ -2006,6 +2006,6 @@ namespace qjson
 	std::u8string JWriter::u8fastFormatWrite(const u8JObject& jo)
 	{
 		static JWriter jw;
-		return std::move(jw.u8fastFormatWrite(jo));
+		return std::move(jw.u8FormatWrite(jo));
 	}
 }
