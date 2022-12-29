@@ -546,6 +546,8 @@ namespace qjson
 			while (itor < data.size() && data[itor] != '}')
 			{
 				skipSpace(data, itor);
+				if (data[itor] == '}')
+					return localJO;
 				std::string key(getString(data, itor));
 				skipSpace(data, itor);
 				if (data[itor] == ':')
@@ -577,6 +579,8 @@ namespace qjson
 			while (itor < data.size() && data[itor] != ']')
 			{
 				skipSpace(data, itor);
+				if (data[itor] == ']')
+					return localJO;
 				localJO.push_back(_parse(data, itor));
 				skipSpace(data, itor);
 				if (data[itor] != ',' && data[itor] != ']')
@@ -628,6 +632,8 @@ namespace qjson
 			while (itor < data.size() && data[itor] != u8'}')
 			{
 				skipSpace(data, itor);
+				if (data[itor] == u8'}')
+					return localJO;
 				std::u8string key(getString(data, itor));
 				skipSpace(data, itor);
 				if (data[itor] == ':')
@@ -659,6 +665,8 @@ namespace qjson
 			while (itor < data.size() && data[itor] != u8']')
 			{
 				skipSpace(data, itor);
+				if (data[itor] == u8']')
+					return localJO;
 				localJO.push_back(_u8parse(data, itor));
 				skipSpace(data, itor);
 				if (data[itor] != u8',' && data[itor] != u8']')
