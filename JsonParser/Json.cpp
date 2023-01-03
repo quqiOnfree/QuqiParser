@@ -751,9 +751,6 @@ namespace qjson
 					case '\\':
 						str += "\\";
 						break;
-					case '\'':
-						str += "\'";
-						break;
 					case '\"':
 						str += "\"";
 						break;
@@ -807,9 +804,6 @@ namespace qjson
 						break;
 					case u8'\\':
 						str += u8"\\";
-						break;
-					case u8'\'':
-						str += u8"\'";
 						break;
 					case u8'\"':
 						str += u8"\"";
@@ -1063,9 +1057,6 @@ namespace qjson
 				case '\\':
 					str += "\\\\";
 					break;
-				case '\'':
-					str += "\\\'";
-					break;
 				case '\"':
 					str += "\\\"";
 					break;
@@ -1114,6 +1105,8 @@ namespace qjson
 		default:
 			break;
 		}
+
+		str += '\n';
 
 		return std::move(str);
 	}
@@ -1172,9 +1165,6 @@ namespace qjson
 					break;
 				case '\\':
 					str += "\\\\";
-					break;
-				case '\'':
-					str += "\\\'";
 					break;
 				case '\"':
 					str += "\\\"";
@@ -1243,6 +1233,252 @@ namespace qjson
 			break;
 		}
 
+		str += '\n';
+
+		return std::move(str);
+	}
+
+	std::u8string JWriter::u8write(const u8JObject& jo)
+	{
+		std::u8string str;
+
+		switch (jo.getType())
+		{
+		case JValueType::JNull:
+			str += u8"null";
+			break;
+
+		case JValueType::JInt:
+		{
+			auto local = std::to_string(jo.getInt());
+			str += std::u8string(local.begin(), local.end());
+			break;
+		}
+		case JValueType::JDouble:
+		{
+			auto local = std::to_string(jo.getDouble());
+			str += std::u8string(local.begin(), local.end());
+			break;
+		}
+		case JValueType::JBool:
+			if (jo.getBool())
+			{
+				str += u8"true";
+				break;
+			}
+			str += u8"false";
+			break;
+
+		case JValueType::JString:
+		{
+			std::u8string localString(jo.getString());
+			str += '\"';
+			for (auto i = localString.begin(); i != localString.end(); ++i)
+			{
+				switch (*i)
+				{
+				case 0:
+					throw std::exception("Lnvalid string");
+				case u8'\n':
+					str += u8"\\n";
+					break;
+				case u8'\b':
+					str += u8"\\b";
+					break;
+				case u8'\f':
+					str += u8"\\f";
+					break;
+				case u8'\r':
+					str += u8"\\r";
+					break;
+				case u8'\t':
+					str += u8"\\t";
+					break;
+				case u8'\\':
+					str += u8"\\\\";
+					break;
+				case u8'\"':
+					str += u8"\\\"";
+					break;
+				default:
+					str += *i;
+					break;
+				}
+			}
+			str += u8'\"';
+		}
+		break;
+
+		case JValueType::JList:
+		{
+			u8list_t& list = jo.getList();
+			str += u8'[';
+			for (auto itor = list.begin(); itor != list.end(); itor++)
+			{
+				str += u8write(*itor);
+				if (itor + 1 != list.end())
+				{
+					str += u8',';
+				}
+			}
+			str += u8']';
+			break;
+		}
+
+		case JValueType::JDict:
+		{
+			u8dict_t& dict = jo.getDict();
+			str += u8'{';
+			for (auto itor = dict.begin(), itor2 = dict.begin(); itor != dict.end(); itor++)
+			{
+				str += u8'\"' + itor->first + u8"\":" + u8write(itor->second);
+				itor2 = itor;
+				if (++itor2 != dict.end())
+				{
+					str += u8',';
+				}
+			}
+			str += u8'}';
+			break;
+		}
+
+		default:
+			break;
+		}
+
+		str += u8'\n';
+
+		return std::move(str);
+	}
+
+	std::u8string JWriter::u8formatWrite(const u8JObject& jo, size_t n)
+	{
+		std::u8string str;
+
+		switch (jo.getType())
+		{
+		case JValueType::JNull:
+			str += u8"null";
+			break;
+
+		case JValueType::JInt:
+		{
+			auto local = std::to_string(jo.getInt());
+			str += std::u8string(local.begin(), local.end());
+			break;
+		}
+		case JValueType::JDouble:
+		{
+			auto local = std::to_string(jo.getDouble());
+			str += std::u8string(local.begin(), local.end());
+			break;
+		}
+		case JValueType::JBool:
+			if (jo.getBool())
+			{
+				str += u8"true";
+				break;
+			}
+			str += u8"false";
+			break;
+
+		case JValueType::JString:
+		{
+			std::u8string localString(jo.getString());
+			str += '\"';
+			for (auto i = localString.begin(); i != localString.end(); ++i)
+			{
+				switch (*i)
+				{
+				case 0:
+					throw std::exception("Lnvalid string");
+				case u8'\n':
+					str += u8"\\n";
+					break;
+				case u8'\b':
+					str += u8"\\b";
+					break;
+				case u8'\f':
+					str += u8"\\f";
+					break;
+				case u8'\r':
+					str += u8"\\r";
+					break;
+				case u8'\t':
+					str += u8"\\t";
+					break;
+				case u8'\\':
+					str += u8"\\\\";
+					break;
+				case u8'\"':
+					str += u8"\\\"";
+					break;
+				default:
+					str += *i;
+					break;
+				}
+			}
+			str += u8'\"';
+		}
+		break;
+
+		case JValueType::JList:
+		{
+			u8list_t& list = jo.getList();
+			str += u8"[\n";
+			for (auto itor = list.begin(); itor != list.end(); itor++)
+			{
+				for (size_t i = 0; i < n; i++)
+				{
+					str += u8"    ";
+				}
+				str += u8formatWrite(*itor, n + 1);
+				if (itor + 1 != list.end())
+				{
+					str += u8",\n";
+				}
+			}
+			str += u8'\n';
+			for (size_t i = 0; i < n - 1; i++)
+			{
+				str += u8"    ";
+			}
+			str += u8"]";
+			break;
+		}
+
+		case JValueType::JDict:
+		{
+			u8dict_t& dict = jo.getDict();
+			str += u8"{\n";
+			for (auto itor = dict.begin(), itor2 = dict.begin(); itor != dict.end(); itor++)
+			{
+				for (size_t i = 0; i < n; i++)
+				{
+					str += u8"    ";
+				}
+				str += u8'\"' + itor->first + u8"\": " + u8formatWrite(itor->second, n + 1);
+				itor2 = itor;
+				if (++itor2 != dict.end())
+				{
+					str += u8",\n";
+				}
+			}
+			str += u8'\n';
+			for (size_t i = 0; i < n - 1; i++)
+			{
+				str += u8"    ";
+			}
+			str += u8"}";
+			break;
+		}
+
+		default:
+			break;
+		}
+
+		str += u8'\n';
+
 		return std::move(str);
 	}
 
@@ -1256,6 +1492,18 @@ namespace qjson
 	{
 		static JWriter jw;
 		return std::move(jw.formatWrite(jo));
+	}
+
+	std::u8string JWriter::u8fastWrite(const u8JObject& jo)
+	{
+		static JWriter jw;
+		return std::move(jw.u8write(jo));
+	}
+
+	std::u8string JWriter::u8fastFormatWrite(const u8JObject& jo)
+	{
+		static JWriter jw;
+		return std::move(jw.u8formatWrite(jo));
 	}
 
 	u8JObject::u8JObject()
@@ -1757,263 +2005,5 @@ namespace qjson
 		{
 			throw std::exception("This JObject isn't string, 此JObject不是字符串");
 		}
-	}
-
-	std::u8string JWriter::u8write(const u8JObject& jo)
-	{
-		std::u8string str;
-
-		switch (jo.getType())
-		{
-		case JValueType::JNull:
-			str += u8"null";
-			break;
-
-		case JValueType::JInt:
-		{
-			auto local = std::to_string(jo.getInt());
-			str += std::u8string(local.begin(), local.end());
-			break;
-		}
-		case JValueType::JDouble:
-		{
-			auto local = std::to_string(jo.getDouble());
-			str += std::u8string(local.begin(), local.end());
-			break;
-		}
-		case JValueType::JBool:
-			if (jo.getBool())
-			{
-				str += u8"true";
-				break;
-			}
-			str += u8"false";
-			break;
-
-		case JValueType::JString:
-		{
-			std::u8string localString(jo.getString());
-			str += '\"';
-			for (auto i = localString.begin(); i != localString.end(); ++i)
-			{
-				switch (*i)
-				{
-				case 0:
-					throw std::exception("Lnvalid string");
-				case u8'\n':
-					str += u8"\\n";
-					break;
-				case u8'\b':
-					str += u8"\\b";
-					break;
-				case u8'\f':
-					str += u8"\\f";
-					break;
-				case u8'\r':
-					str += u8"\\r";
-					break;
-				case u8'\t':
-					str += u8"\\t";
-					break;
-				case u8'\\':
-					str += u8"\\\\";
-					break;
-				case u8'\'':
-					str += u8"\\\'";
-					break;
-				case u8'\"':
-					str += u8"\\\"";
-					break;
-				default:
-					str += *i;
-					break;
-				}
-			}
-			str += u8'\"';
-		}
-		break;
-
-		case JValueType::JList:
-		{
-			u8list_t& list = jo.getList();
-			str += u8'[';
-			for (auto itor = list.begin(); itor != list.end(); itor++)
-			{
-				str += u8write(*itor);
-				if (itor + 1 != list.end())
-				{
-					str += u8',';
-				}
-			}
-			str += u8']';
-			break;
-		}
-
-		case JValueType::JDict:
-		{
-			u8dict_t& dict = jo.getDict();
-			str += u8'{';
-			for (auto itor = dict.begin(), itor2 = dict.begin(); itor != dict.end(); itor++)
-			{
-				str += u8'\"' + itor->first + u8"\":" + u8write(itor->second);
-				itor2 = itor;
-				if (++itor2 != dict.end())
-				{
-					str += u8',';
-				}
-			}
-			str += u8'}';
-			break;
-		}
-
-		default:
-			break;
-		}
-
-		return std::move(str);
-	}
-
-	std::u8string JWriter::u8formatWrite(const u8JObject& jo, size_t n)
-	{
-		std::u8string str;
-
-		switch (jo.getType())
-		{
-		case JValueType::JNull:
-			str += u8"null";
-			break;
-
-		case JValueType::JInt:
-		{
-			auto local = std::to_string(jo.getInt());
-			str += std::u8string(local.begin(), local.end());
-			break;
-		}
-		case JValueType::JDouble:
-		{
-			auto local = std::to_string(jo.getDouble());
-			str += std::u8string(local.begin(), local.end());
-			break;
-		}
-		case JValueType::JBool:
-			if (jo.getBool())
-			{
-				str += u8"true";
-				break;
-			}
-			str += u8"false";
-			break;
-
-		case JValueType::JString:
-		{
-			std::u8string localString(jo.getString());
-			str += '\"';
-			for (auto i = localString.begin(); i != localString.end(); ++i)
-			{
-				switch (*i)
-				{
-				case 0:
-					throw std::exception("Lnvalid string");
-				case u8'\n':
-					str += u8"\\n";
-					break;
-				case u8'\b':
-					str += u8"\\b";
-					break;
-				case u8'\f':
-					str += u8"\\f";
-					break;
-				case u8'\r':
-					str += u8"\\r";
-					break;
-				case u8'\t':
-					str += u8"\\t";
-					break;
-				case u8'\\':
-					str += u8"\\\\";
-					break;
-				case u8'\'':
-					str += u8"\\\'";
-					break;
-				case u8'\"':
-					str += u8"\\\"";
-					break;
-				default:
-					str += *i;
-					break;
-				}
-			}
-			str += u8'\"';
-		}
-		break;
-
-		case JValueType::JList:
-		{
-			u8list_t& list = jo.getList();
-			str += u8"[\n";
-			for (auto itor = list.begin(); itor != list.end(); itor++)
-			{
-				for (size_t i = 0; i < n; i++)
-				{
-					str += u8"    ";
-				}
-				str += u8formatWrite(*itor, n + 1);
-				if (itor + 1 != list.end())
-				{
-					str += u8",\n";
-				}
-			}
-			str += u8'\n';
-			for (size_t i = 0; i < n - 1; i++)
-			{
-				str += u8"    ";
-			}
-			str += u8"]";
-			break;
-		}
-
-		case JValueType::JDict:
-		{
-			u8dict_t& dict = jo.getDict();
-			str += u8"{\n";
-			for (auto itor = dict.begin(), itor2 = dict.begin(); itor != dict.end(); itor++)
-			{
-				for (size_t i = 0; i < n; i++)
-				{
-					str += u8"    ";
-				}
-				str += u8'\"' + itor->first + u8"\": " + u8formatWrite(itor->second, n + 1);
-				itor2 = itor;
-				if (++itor2 != dict.end())
-				{
-					str += u8",\n";
-				}
-			}
-			str += u8'\n';
-			for (size_t i = 0; i < n - 1; i++)
-			{
-				str += u8"    ";
-			}
-			str += u8"}";
-			break;
-		}
-
-		default:
-			break;
-		}
-
-		return std::move(str);
-	}
-
-	std::u8string JWriter::u8fastWrite(const u8JObject& jo)
-	{
-		static JWriter jw;
-		return std::move(jw.u8write(jo));
-	}
-
-	std::u8string JWriter::u8fastFormatWrite(const u8JObject& jo)
-	{
-		static JWriter jw;
-		return std::move(jw.u8formatWrite(jo));
 	}
 }
