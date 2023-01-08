@@ -1106,8 +1106,6 @@ namespace qjson
 			break;
 		}
 
-		str += '\n';
-
 		return std::move(str);
 	}
 
@@ -1233,8 +1231,6 @@ namespace qjson
 			break;
 		}
 
-		str += '\n';
-
 		return std::move(str);
 	}
 
@@ -1345,8 +1341,6 @@ namespace qjson
 		default:
 			break;
 		}
-
-		str += u8'\n';
 
 		return std::move(str);
 	}
@@ -1477,33 +1471,31 @@ namespace qjson
 			break;
 		}
 
-		str += u8'\n';
-
 		return std::move(str);
 	}
 
 	std::string  JWriter::fastWrite(const JObject& jo)
 	{
 		static JWriter jw;
-		return std::move(jw.write(jo));
+		return std::move(jw.write(jo) + '\n');
 	}
 
 	std::string  JWriter::fastFormatWrite(const JObject& jo)
 	{
 		static JWriter jw;
-		return std::move(jw.formatWrite(jo));
+		return std::move(jw.formatWrite(jo) + '\n');
 	}
 
 	std::u8string JWriter::u8fastWrite(const u8JObject& jo)
 	{
 		static JWriter jw;
-		return std::move(jw.u8write(jo));
+		return std::move(jw.u8write(jo) + u8'\n');
 	}
 
 	std::u8string JWriter::u8fastFormatWrite(const u8JObject& jo)
 	{
 		static JWriter jw;
-		return std::move(jw.u8formatWrite(jo));
+		return std::move(jw.u8formatWrite(jo) + u8'\n');
 	}
 
 	u8JObject::u8JObject()
