@@ -2,11 +2,13 @@
 
 project(JsonParser)
 
+#import files
 file(GLOB CPP_FILES
 	"${PROJECT_SOURCE_DIR}/JsonParser/Json.cpp"
 	"${PROJECT_SOURCE_DIR}/JsonParser/Json.h"
 )
 
+#addLibrary JsonParser
 add_library(${PROJECT_NAME} ${CPP_FILES})
 
 target_compile_features(${CMAKE_PROJECT_NAME} PRIVATE cxx_std_20)
