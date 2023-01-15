@@ -1,12 +1,15 @@
 ﻿# JsonParser Json解析器
 
 ## 解析器的基本性质
+- 支持c++20以上版本
+- 在网上看到了一个b站up主的[json解析器](https://github.com/ACking-you/MyUtil/tree/master/json-parser)，觉得很不错，就按照他的思想做了一个新的
 - 还没测效率，估计不低（比jsoncpp快就行）
-- 报错使用std::exception
+- 报错使用std::exception，如果linux报错就替换成logic_error
 - 有三个Class，分别是JObject（用于存Json数据）、JParser（Json数据读取）、JWriter（Json数据写出）
 
 ## 解析器的使用
-- json的数据类型
+### json的数据类型
+- enum类型
 ```
 enum class JValueType
 {
@@ -19,8 +22,9 @@ enum class JValueType
 	JDict
 };
 
-//上面对应下面
-
+```
+- enum对应下面的数据类型
+```
 using null_t = bool;
 using int_t = long long;
 using bool_t = bool;
@@ -30,7 +34,7 @@ using list_t = std::vector<JObject>;
 using dict_t = std::unordered_map<std::string, JObject>;
 ```
 
-## class JObject
+### class JObject
 - 类型的定义
 ```
 //null类型（直接生成）
@@ -109,7 +113,7 @@ dict_t get = json.getDict();
 dict_t get = json;
 ```
 
-## class JParser
+### class JParser
 - 数据的读取
 ```
 string jsonString = R"(
@@ -123,7 +127,7 @@ string jsonString = R"(
 JObject json = JParser::fastParse(jsonString);
 ```
 
-## class JWriter
+### class JWriter
 - 数据的写出
 ```
 JObject json["awa"];
