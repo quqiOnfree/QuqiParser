@@ -10,7 +10,8 @@
 ## 解析器的使用
 ### json的数据类型
 - enum类型
-```
+```cpp
+
 enum class JValueType
 {
 	JNull,
@@ -21,22 +22,23 @@ enum class JValueType
 	JList,
 	JDict
 };
-
 ```
 - enum对应下面的数据类型
-```
-using null_t = bool;
-using int_t = long long;
-using bool_t = bool;
-using double_t = long double;
-using string_t = std::string;
-using list_t = std::vector<JObject>;
-using dict_t = std::unordered_map<std::string, JObject>;
+```cpp
+
+using null_t 	= bool;
+using int_t 	= long long;
+using bool_t 	= bool;
+using double_t 	= long double;
+using string_t 	= std::string;
+using list_t 	= std::vector<JObject>;
+using dict_t 	= std::unordered_map<std::string, JObject>;
 ```
 
 ### class JObject
 - 类型的定义
-```
+```cpp
+
 //null类型（直接生成）
 JObject json;
 
@@ -61,7 +63,8 @@ JObject json.push_back(1);
 JObject json["awa"] = 1;
 ```
 - 数据的获取
-```
+```cpp
+
 //判断数据类型
 json.getType()
 返回enum class JValueType
@@ -115,7 +118,8 @@ dict_t get = json;
 
 ### class JParser
 - 数据的读取
-```
+```cpp
+
 string jsonString = R"(
 {
     "a":"hello",
@@ -129,7 +133,8 @@ JObject json = JParser::fastParse(jsonString);
 
 ### class JWriter
 - 数据的写出
-```
+```cpp
+
 JObject json["awa"];
 std::string get = JWriter::fastWrite(json);
 /*
