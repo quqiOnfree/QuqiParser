@@ -3,6 +3,7 @@
 #include <exception>
 #include <cmath>
 #include <memory>
+#include <sstream>
 
 static std::allocator<qjson::JObject::value_t> jsonAllocator;
 
@@ -614,6 +615,22 @@ namespace qjson
 						break;
 					case '/':
 						str += "/";
+						break;
+					case 'u':
+						if (itor + 4 < data.size())
+						{
+							std::stringstream ss;
+							std::string strNum = "0x" + std::string(data.substr(itor + 1, 4));
+							int nValude = 0;
+#ifdef _MSVC_LANG
+							//msvc下使用这个
+							sscanf_s(strNum.c_str(), "%x", &nValude);
+#else
+							sscanf(strNum.c_str(), "%x", &nValude);
+#endif // _WIN32
+							str += static_cast<wchar_t>(nValude);
+							itor += 4;
+						}
 						break;
 					default:
 						throw std::exception("Lnvalid string");
