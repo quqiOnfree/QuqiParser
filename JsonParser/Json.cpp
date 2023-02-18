@@ -463,7 +463,7 @@ namespace qjson
 		return std::move(_parse(data, itor));
 	}
 
-	JObject JParser::parse(std::ifstream& infile)
+	JObject JParser::fastParse(std::ifstream& infile)
 	{
 		infile.seekg(0, std::ios_base::end);
 		size_t size = infile.tellg();
@@ -473,7 +473,7 @@ namespace qjson
 		infile.read(buffer.data(), size);
 		infile.close();
 
-		return std::move(this->fastParse(buffer));
+		return std::move(JParser::fastParse(buffer));
 	}
 
 	JObject JParser::fastParse(const std::string_view data)

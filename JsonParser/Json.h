@@ -83,7 +83,7 @@ namespace qjson
 		JParser() = default;
 
 		JObject parse(std::string_view data);
-		JObject parse(std::ifstream& infile);
+		static JObject fastParse(std::ifstream& infile);
 		static JObject fastParse(const std::string_view data);
 	protected:
 		JObject _parse(std::string_view data, size_t& itor);
@@ -107,4 +107,3 @@ namespace qjson
 		static std::string fastFormatWrite(const JObject& jo);
 	};
 }
-
