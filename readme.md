@@ -1,13 +1,17 @@
 ﻿# JsonParser Json解析器
 
 ## 解析器的基本性质
+- 支持c++20以上版本
+- 在网上看到了一个b站up主的[json解析器](https://github.com/ACking-you/MyUtil/tree/master/json-parser)，觉得很不错，就按照他的思想做了一个新的
 - 还没测效率，估计不低（比jsoncpp快就行）
-- 报错使用std::exception
+- 报错使用std::exception，如果linux报错就替换成logic_error
 - 有三个Class，分别是JObject（用于存Json数据）、JParser（Json数据读取）、JWriter（Json数据写出）
 
 ## 解析器的使用
-- json的数据类型
-```
+### json的数据类型
+- enum类型
+```cpp
+
 enum class JValueType
 {
 	JNull,
@@ -18,21 +22,23 @@ enum class JValueType
 	JList,
 	JDict
 };
+```
+- enum对应下面的数据类型
+```cpp
 
-//上面对应下面
-
-using null_t = bool;
-using int_t = long long;
-using bool_t = bool;
-using double_t = long double;
-using string_t = std::string;
-using list_t = std::vector<JObject>;
-using dict_t = std::unordered_map<std::string, JObject>;
+using null_t 	= bool;
+using int_t 	= long long;
+using bool_t 	= bool;
+using double_t 	= long double;
+using string_t 	= std::string;
+using list_t 	= std::vector<JObject>;
+using dict_t 	= std::unordered_map<std::string, JObject>;
 ```
 
-## class JObject
+### class JObject
 - 类型的定义
-```
+```cpp
+
 //null类型（直接生成）
 JObject json;
 
@@ -57,7 +63,8 @@ JObject json.push_back(1);
 JObject json["awa"] = 1;
 ```
 - 数据的获取
-```
+```cpp
+
 //判断数据类型
 json.getType()
 返回enum class JValueType
@@ -109,9 +116,10 @@ dict_t get = json.getDict();
 dict_t get = json;
 ```
 
-## class JParser
+### class JParser
 - 数据的读取
-```
+```cpp
+
 string jsonString = R"(
 {
     "a":"hello",
@@ -123,9 +131,10 @@ string jsonString = R"(
 JObject json = JParser::fastParse(jsonString);
 ```
 
-## class JWriter
+### class JWriter
 - 数据的写出
-```
+```cpp
+
 JObject json["awa"];
 std::string get = JWriter::fastWrite(json);
 /*
