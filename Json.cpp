@@ -1,6 +1,6 @@
 ﻿#include "Json.h"
 
-#include <exception>
+#include <stdexcept>
 #include <cmath>
 #include <memory>
 #include <sstream>
@@ -291,7 +291,7 @@ namespace qjson
 		}
 		else
 		{
-			throw std::exception("The type isn't JList, 类型不是JList.");
+			throw std::logic_error("The type isn't JList, 类型不是JList.");
 		}
 	}
 
@@ -314,7 +314,7 @@ namespace qjson
 		}
 		else
 		{
-			throw std::exception("The type isn't JDict, 类型不是JDict.");
+			throw std::logic_error("The type isn't JDict, 类型不是JDict.");
 		}
 	}
 
@@ -332,7 +332,7 @@ namespace qjson
 		}
 		else
 		{
-			throw std::exception("The type isn't JList, 类型不是JList.");
+			throw std::logic_error("The type isn't JList, 类型不是JList.");
 		}
 	}
 
@@ -350,7 +350,7 @@ namespace qjson
 		}
 		else
 		{
-			throw std::exception("The type isn't JList, 类型不是JList.");
+			throw std::logic_error("The type isn't JList, 类型不是JList.");
 		}
 	}
 
@@ -358,18 +358,18 @@ namespace qjson
 	{
 		if (m_type == JValueType::JNull)
 		{
-			throw std::exception("The type isn't JList, 类型不是JList.");
+			throw std::logic_error("The type isn't JList, 类型不是JList.");
 		}
 		else if (m_type == JValueType::JList)
 		{
 			list_t* local = std::get_if<list_t>(m_value);
 			if (local->empty())
-				throw std::exception("The JList is empty, JList为空.");
+				throw std::logic_error("The JList is empty, JList为空.");
 			local->pop_back();
 		}
 		else
 		{
-			throw std::exception("The type isn't JList, 类型不是JList.");
+			throw std::logic_error("The type isn't JList, 类型不是JList.");
 		}
 	}
 
@@ -382,7 +382,7 @@ namespace qjson
 				return true;
 			return false;
 		}
-		throw std::exception("The type isn't JDict, 类型不是JDict.");
+		throw std::logic_error("The type isn't JDict, 类型不是JDict.");
 	}
 
 	JValueType JObject::getType() const
@@ -397,7 +397,7 @@ namespace qjson
 			return *std::get_if<list_t>(m_value);
 		}
 		else
-			throw std::exception("The type isn't JList, 类型不是JList.");
+			throw std::logic_error("The type isn't JList, 类型不是JList.");
 	}
 
 	dict_t& JObject::getDict() const
@@ -407,7 +407,7 @@ namespace qjson
 			return *std::get_if<dict_t>(m_value);
 		}
 		else
-			throw std::exception("The type isn't JDict, 类型不是JDict.");
+			throw std::logic_error("The type isn't JDict, 类型不是JDict.");
 	}
 
 	long long& JObject::getInt() const
@@ -418,7 +418,7 @@ namespace qjson
 		}
 		else
 		{
-			throw std::exception("This JObject isn't int, 此JObject不是整形");
+			throw std::logic_error("This JObject isn't int, 此JObject不是整形");
 		}
 	}
 
@@ -430,7 +430,7 @@ namespace qjson
 		}
 		else
 		{
-			throw std::exception("This JObject isn't double, 此JObject不是浮点数");
+			throw std::logic_error("This JObject isn't double, 此JObject不是浮点数");
 		}
 	}
 
@@ -442,7 +442,7 @@ namespace qjson
 		}
 		else
 		{
-			throw std::exception("This JObject isn't bool, 此JObject不是布尔值");
+			throw std::logic_error("This JObject isn't bool, 此JObject不是布尔值");
 		}
 	}
 
@@ -454,7 +454,7 @@ namespace qjson
 		}
 		else
 		{
-			throw std::exception("This JObject isn't string, 此JObject不是字符串");
+			throw std::logic_error("This JObject isn't string, 此JObject不是字符串");
 		}
 	}
 
@@ -487,10 +487,10 @@ namespace qjson
 	JObject JParser::_parse(std::string_view data, size_t& itor)
 	{
 		if (data.empty())
-			throw std::exception("Lnvalid input");
+			throw std::logic_error("Lnvalid input");
 		skipSpace(data, itor);
 		if (data.size() <= itor)
-			throw std::exception("Lnvalid input");
+			throw std::logic_error("Lnvalid input");
 		if (data[itor] == '{')
 		{
 			JObject localJO(JValueType::JDict);
@@ -505,12 +505,12 @@ namespace qjson
 				if (data[itor] == ':')
 					itor++;
 				else
-					throw std::exception("Lnvalid input");
+					throw std::logic_error("Lnvalid input");
 				skipSpace(data, itor);
 				localJO[key.c_str()] = _parse(data, itor);
 				skipSpace(data, itor);
 				if (data[itor] != ',' && data[itor] != '}')
-					throw std::exception("Lnvalid input");
+					throw std::logic_error("Lnvalid input");
 				else if (data[itor] == '}')
 				{
 					itor++;
@@ -522,7 +522,7 @@ namespace qjson
 			if (data[itor] == '}')
 				return localJO;
 			else
-				throw std::exception("Lnvalid input");
+				throw std::logic_error("Lnvalid input");
 		}
 		else if (data[itor] == '[')
 		{
@@ -536,7 +536,7 @@ namespace qjson
 				localJO.push_back(_parse(data, itor));
 				skipSpace(data, itor);
 				if (data[itor] != ',' && data[itor] != ']')
-					throw std::exception("Lnvalid input");
+					throw std::logic_error("Lnvalid input");
 				else if (data[itor] == ']')
 				{
 					itor++;
@@ -548,7 +548,7 @@ namespace qjson
 			if (data[itor] == ']')
 				return localJO;
 			else
-				throw std::exception("Lnvalid input");
+				throw std::logic_error("Lnvalid input");
 		}
 		else if (data[itor] == '\"')
 		{
@@ -567,7 +567,7 @@ namespace qjson
 			return std::move(getNumber(data, itor));
 		}
 		else
-			throw std::exception("Lnvalid input");
+			throw std::logic_error("Lnvalid input");
 	}
 
 	void JParser::skipSpace(std::string_view data, size_t& itor)
@@ -633,7 +633,7 @@ namespace qjson
 						}
 						break;
 					default:
-						throw std::exception("Lnvalid string");
+						throw std::logic_error("Lnvalid string");
 						break;
 					}
 				}
@@ -644,12 +644,12 @@ namespace qjson
 				itor++;
 			}
 			if (itor >= data.size())
-				throw std::exception("Lnvalid input");
+				throw std::logic_error("Lnvalid input");
 			itor++;
 			return std::move(str);
 		}
 		else
-			throw std::exception("Lnvalid input");
+			throw std::logic_error("Lnvalid input");
 	}
 
 	JObject JParser::getNumber(std::string_view data, size_t& itor)
@@ -678,7 +678,7 @@ namespace qjson
 			else if (data[itor] == '.')
 			{
 				if (!firstNum)
-					throw std::exception("Lnvalid input");
+					throw std::logic_error("Lnvalid input");
 				isDouble = true;
 				itor++;
 				continue;
@@ -726,7 +726,7 @@ namespace qjson
 			itor += 5;
 			return false;
 		}
-		throw std::exception("Lnvalid input");
+		throw std::logic_error("Lnvalid input");
 	}
 
 	JObject JParser::getNull(std::string_view data, size_t& itor)
@@ -736,7 +736,7 @@ namespace qjson
 			itor += 4;
 			return JObject();
 		}
-		throw std::exception("Lnvalid input");
+		throw std::logic_error("Lnvalid input");
 	}
 
 	std::string JWriter::write(const JObject& jo)
@@ -783,7 +783,7 @@ namespace qjson
 					switch (*i)
 					{
 					case 0:
-						throw std::exception("Lnvalid string");
+						throw std::logic_error("Lnvalid string");
 					case '\n':
 						str += "\\n";
 						break;
@@ -905,7 +905,7 @@ namespace qjson
 				switch (*i)
 				{
 				case 0:
-					throw std::exception("Lnvalid string");
+					throw std::logic_error("Lnvalid string");
 				case '\n':
 					str += "\\n";
 					break;
