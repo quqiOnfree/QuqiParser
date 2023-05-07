@@ -4,8 +4,8 @@ project(JsonParser)
 
 #import files
 file(GLOB CPP_FILES
-	"${PROJECT_SOURCE_DIR}/Json.cpp"
-	"${PROJECT_SOURCE_DIR}/Json.h"
+	"${PROJECT_SOURCE_DIR}/JsonParser/Json.cpp"
+	"${PROJECT_SOURCE_DIR}/JsonParser/Json.h"
 )
 
 #addLibrary JsonParser
