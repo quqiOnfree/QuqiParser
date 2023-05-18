@@ -151,7 +151,14 @@ std::string get = object["section"]["key"];
 - 数据的读取
 1. 读取字符串
 ```cpp
-INIObject object = INIParser::fastParse(/*ini data string*/);
+std::string data = R"(
+[server]
+address = 127.0.0.1
+port = 1234
+)");
+
+INIObject object = INIParser::fastParse(data);
+
 ```
 
 2. 读取文件（还在编写）
@@ -166,6 +173,11 @@ INIObject object = INIParser::fastParse(file);
 INIObject object;
 
 std::string get = INIWriter::fastWrite(object);
+/*
+[server]
+address = 127.0.0.1
+port = 1234
+*/
 
 ```
 
