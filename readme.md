@@ -1,13 +1,9 @@
-﻿# JsonParser Json解析器
+﻿# QuqiParser
 
 ## 解析器的基本性质
-- 支持c++20以上版本
-- 在网上看到了一个b站up主的[json解析器](https://github.com/ACking-you/MyUtil/tree/master/json-parser)，觉得很不错，就按照他的思想做了一个新的
-- 还没测效率，估计不低（比jsoncpp快就行）
-- 报错使用std::exception，如果linux报错就替换成logic_error
-- 有三个Class，分别是JObject（用于存Json数据）、JParser（Json数据读取）、JWriter（Json数据写出）
+- 需要c++20以上版本
 
-## 解析器的使用
+## Json解析器的使用
 ### json的数据类型
 - enum类型
 ```cpp
@@ -141,3 +137,35 @@ std::string get = JWriter::fastFormatWrite(json);
 }
 */
 ```
+
+## INI解析器的使用
+### class INIObject
+- 类型的定义和获取
+```cpp
+INIObject object;
+object["section"]["key"] = "value";
+std::string get = object["section"]["key"];
+```
+
+### class INIParser
+- 数据的读取
+1. 读取字符串
+```cpp
+INIObject object = INIParser::fastParse(/*ini data string*/);
+```
+
+2. 读取文件（还在编写）
+```cpp
+std::ifstream file(/*path*/);
+INIObject object = INIParser::fastParse(file);
+```
+
+### class INIWriter
+- 数据的写出
+```cpp
+INIObject object;
+
+std::string get = INIWriter::fastWrite(object);
+
+```
+
