@@ -7,6 +7,7 @@
 #include <variant>
 #include <string_view>
 #include <fstream>
+#include <sstream>
 
 namespace qjson
 {
@@ -224,34 +225,34 @@ namespace qjson
 			return *this;
 		}
 
-		bool operator ==(const JObject& jo)
+		friend bool operator ==(const JObject& joa, const JObject& jo)
 		{
-			if (m_type != jo.m_type)
+			if (joa.m_type != jo.m_type)
 				return false;
 			switch (jo.m_type)
 			{
 			case JValueType::JNull:
 				return true;
 			case JValueType::JInt:
-				if (getInt() == jo.getInt())
+				if (joa.getInt() == jo.getInt())
 					return true;
 				return false;
 			case JValueType::JDouble:
-				if (getDouble() == jo.getDouble())
+				if (joa.getDouble() == jo.getDouble())
 					return true;
 				return false;
 			case JValueType::JBool:
-				if (getBool() == jo.getBool())
+				if (joa.getBool() == jo.getBool())
 					return true;
 				return false;
 			case JValueType::JString:
-				if (getString() == jo.getString())
+				if (joa.getString() == jo.getString())
 					return true;
 				return false;
 			case JValueType::JList:
 			{
-				list_t& local = getList();
-				list_t& jolist = jo.getList();
+				const list_t& local = joa.getList();
+				const list_t& jolist = jo.getList();
 				if (local.empty() ^ jolist.empty())
 					return false;
 				if (local.size() != jolist.size())
@@ -268,8 +269,8 @@ namespace qjson
 
 			case JValueType::JDict:
 			{
-				dict_t& local = getDict();
-				dict_t& joDict = jo.getDict();
+				const dict_t& local = joa.getDict();
+				const dict_t& joDict = jo.getDict();
 				if (local.empty() ^ joDict.empty())
 					return false;
 				if (local.size() != joDict.size())
@@ -278,7 +279,7 @@ namespace qjson
 				{
 					if (joDict.find(i->first) == joDict.end())
 						return false;
-					else if (!(i->second == joDict[i->first]))
+					else if (!(i->second == joDict.find(i->first)->second))
 						return false;
 				}
 				return true;
@@ -289,11 +290,33 @@ namespace qjson
 			}
 		}
 
-		bool operator ==(JValueType type)
+		friend bool operator ==(const JObject& jo, JValueType type)
 		{
-			if (m_type == type)
+			if (jo.m_type == type)
 				return true;
 			return false;
+		}
+
+		const JObject& operator[](size_t itor) const
+		{
+			if (m_type == JValueType::JNull)
+			{
+				m_type = JValueType::JList;
+				*m_value = list_t();
+				std::get_if<list_t>(m_value)->resize(itor + 1);
+				return (*std::get_if<list_t>(m_value))[itor];
+			}
+			else if (m_type == JValueType::JList)
+			{
+				list_t* local = std::get_if<list_t>(m_value);
+				if (itor >= local->size())
+					local->resize(itor + 1);
+				return (*local)[itor];
+			}
+			else
+			{
+				throw std::logic_error("The type isn't JList, 类型不是JList.");
+			}
 		}
 
 		JObject& operator[](size_t itor)
@@ -318,9 +341,32 @@ namespace qjson
 			}
 		}
 
+		const JObject& operator[](int itor) const
+		{
+			return operator[](size_t(itor));
+		}
+
 		JObject& operator[](int itor)
 		{
 			return operator[](size_t(itor));
+		}
+
+		const JObject& operator[](const char* str) const
+		{
+			if (m_type == JValueType::JNull)
+			{
+				m_type = JValueType::JDict;
+				*m_value = dict_t();
+				return (*std::get_if<dict_t>(m_value))[str];
+			}
+			else if (m_type == JValueType::JDict)
+			{
+				return (*std::get_if<dict_t>(m_value))[str];
+			}
+			else
+			{
+				throw std::logic_error("The type isn't JDict, 类型不是JDict.");
+			}
 		}
 
 		JObject& operator[](const char* str)
@@ -396,11 +442,11 @@ namespace qjson
 			}
 		}
 
-		bool hasMember(const std::string& str)
+		bool hasMember(const std::string& str) const
 		{
 			if (m_type == JValueType::JDict)
 			{
-				dict_t* local = std::get_if<dict_t>(m_value);
+				const dict_t* local = std::get_if<dict_t>(m_value);
 				if (local->find(str) != local->end())
 					return true;
 				return false;
@@ -413,7 +459,7 @@ namespace qjson
 			return m_type;
 		}
 
-		list_t& getList() const
+		const list_t& getList() const
 		{
 			if (m_type == JValueType::JList)
 			{
@@ -423,7 +469,17 @@ namespace qjson
 				throw std::logic_error("The type isn't JList, 类型不是JList.");
 		}
 
-		dict_t& getDict() const
+		list_t& getList()
+		{
+			if (m_type == JValueType::JList)
+			{
+				return *std::get_if<list_t>(m_value);
+			}
+			else
+				throw std::logic_error("The type isn't JList, 类型不是JList.");
+		}
+
+		const dict_t& getDict() const
 		{
 			if (m_type == JValueType::JDict)
 			{
@@ -433,7 +489,17 @@ namespace qjson
 				throw std::logic_error("The type isn't JDict, 类型不是JDict.");
 		}
 
-		long long& getInt() const
+		dict_t& getDict()
+		{
+			if (m_type == JValueType::JDict)
+			{
+				return *std::get_if<dict_t>(m_value);
+			}
+			else
+				throw std::logic_error("The type isn't JDict, 类型不是JDict.");
+		}
+
+		const long long& getInt() const
 		{
 			if (m_type == JValueType::JInt)
 			{
@@ -445,7 +511,19 @@ namespace qjson
 			}
 		}
 
-		long double& getDouble() const
+		long long& getInt()
+		{
+			if (m_type == JValueType::JInt)
+			{
+				return *std::get_if<int_t>(m_value);
+			}
+			else
+			{
+				throw std::logic_error("This JObject isn't int, 此JObject不是整形");
+			}
+		}
+
+		const long double& getDouble() const
 		{
 			if (m_type == JValueType::JDouble)
 			{
@@ -457,7 +535,19 @@ namespace qjson
 			}
 		}
 
-		bool& getBool() const
+		long double& getDouble()
+		{
+			if (m_type == JValueType::JDouble)
+			{
+				return *std::get_if<double_t>(m_value);
+			}
+			else
+			{
+				throw std::logic_error("This JObject isn't double, 此JObject不是浮点数");
+			}
+		}
+
+		const bool& getBool() const
 		{
 			if (m_type == JValueType::JBool)
 			{
@@ -469,7 +559,31 @@ namespace qjson
 			}
 		}
 
-		std::string& getString() const
+		bool& getBool()
+		{
+			if (m_type == JValueType::JBool)
+			{
+				return *std::get_if<bool_t>(m_value);
+			}
+			else
+			{
+				throw std::logic_error("This JObject isn't bool, 此JObject不是布尔值");
+			}
+		}
+
+		const std::string& getString() const
+		{
+			if (m_type == JValueType::JString)
+			{
+				return *std::get_if<string_t>(m_value);
+			}
+			else
+			{
+				throw std::logic_error("This JObject isn't string, 此JObject不是字符串");
+			}
+		}
+
+		std::string& getString()
 		{
 			if (m_type == JValueType::JString)
 			{
@@ -484,8 +598,8 @@ namespace qjson
 	public:
 		using value_t = std::variant<int_t, bool_t, double_t, string_t, list_t, dict_t>;
 	private:
-		value_t* m_value;
-		JValueType m_type;
+		mutable value_t* m_value;
+		mutable JValueType m_type;
 	};
 
 	class JParser
@@ -860,7 +974,7 @@ namespace qjson
 
 			case JValueType::JList:
 			{
-				list_t& list = jo.getList();
+				const list_t& list = jo.getList();
 				if (list.empty())
 				{
 					str += "[]";
@@ -883,7 +997,7 @@ namespace qjson
 
 			case JValueType::JDict:
 			{
-				dict_t& dict = jo.getDict();
+				const dict_t& dict = jo.getDict();
 				if (dict.empty())
 				{
 					str += "{}";
@@ -981,7 +1095,7 @@ namespace qjson
 
 			case JValueType::JList:
 			{
-				list_t& list = jo.getList();
+				const list_t& list = jo.getList();
 				str += "[\n";
 				for (auto itor = list.begin(); itor != list.end(); itor++)
 				{
@@ -1006,7 +1120,7 @@ namespace qjson
 
 			case JValueType::JDict:
 			{
-				dict_t& dict = jo.getDict();
+				const dict_t& dict = jo.getDict();
 				str += "{\n";
 				for (auto itor = dict.begin(), itor2 = dict.begin(); itor != dict.end(); itor++)
 				{

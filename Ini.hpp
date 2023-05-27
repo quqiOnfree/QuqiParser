@@ -10,6 +10,9 @@
 
 namespace qini
 {
+	class INIParser;
+	class INIWriter;
+
 	class INIObject
 	{
 	public:
@@ -76,6 +79,16 @@ namespace qini
 		Section operator [](const std::string sectionName)
 		{
 			return Section(m_sections[sectionName]);
+		}
+
+		friend bool operator ==(const INIObject& ia, const INIObject& ib) const
+		{
+			return ia.m_sections == ib.m_sections;
+		}
+
+		friend bool operator !=(const INIObject& ia, const INIObject& ib) const
+		{
+			return ia.m_sections != ib.m_sections;
 		}
 
 	private:
