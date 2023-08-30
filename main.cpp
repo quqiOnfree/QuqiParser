@@ -1,22 +1,54 @@
 ﻿#include <iostream>
 #include <format>
 
-#include "Json.hpp"
+#include "Json.h"
+#include "Ini.h"
 
 int main()
 {
-	std::string data = "{\"id\":1,\"name\":\"张三\",\"age\":18}";
+	std::string json =
+		"{\n"
+		"    \"id\": 10000,\n"
+		"    \"name\": \"张三\",\n"
+		"    \"age\": 50\n"
+		"}\n";
 
-	qjson::JObject jobject = qjson::JParser::fastParse(data);
+	try
+	{
+		qjson::JObject jobject = qjson::JParser::fastParse(json);
 
-	long long id = jobject["id"].getInt();
-	std::string name = jobject["name"].getString();
-	long long age = jobject["age"].getInt();
+		long long id = jobject["id"].getInt();
+		std::string name = jobject["name"].getString();
+		long long age = jobject["age"].getInt();
 
-	std::cout << std::format("id: {}, name: {}, age: {}\n", id, name, age);
+		std::cout << std::format("id: {}, name: {}, age: {}\n", id, name, age);
 
-	std::cout << "一行json数据：" << qjson::JWriter::fastWrite(jobject) << '\n';
-	std::cout << "多行json数据：" << qjson::JWriter::fastFormatWrite(jobject) << '\n';
+		std::cout << "一行json数据：" << qjson::JWriter::fastWrite(jobject) << '\n';
+		std::cout << "多行json数据：" << qjson::JWriter::fastFormatWrite(jobject) << '\n';
+	}
+	catch (const std::exception& e)
+	{
+		std::cout << e.what() << '\n';
+	}
+	
+	try
+	{
+		std::string data = R"(
+[hello]
+key=1 ; asdasdasd
+word=hello #asdasdas
+	)";
+
+		qini::INIObject ob = qini::INIParser::fastParse(data);
+
+		std::cout << ob["hello"]["keys"] << '\n';
+
+	}
+	catch (const std::exception& e)
+	{
+		std::cout << e.what() << '\n';
+	}
+	
 
 	return 0;
 }
