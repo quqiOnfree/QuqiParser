@@ -1,8 +1,8 @@
 ﻿#include <iostream>
 #include <format>
 
-#include "Json.h"
-#include "Ini.h"
+#include <QuqiParser/Json.h>
+#include <QuqiParser/Ini.h>
 
 int main()
 {
