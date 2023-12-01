@@ -1,5 +1,7 @@
 ﻿#include <QuqiParser/Json.h>
 
+#include <cmath>
+
 #define JSON_NAMESPACE_START namespace qjson {
 #define JSON_NAMESPACE_END }
 
