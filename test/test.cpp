@@ -41,7 +41,8 @@ word=hello #asdasdas
 
 		qini::INIObject ob = qini::INIParser::fastParse(data);
 
-		std::cout << ob["hello"]["keys"] << '\n';
+		std::cout << ob["hello"]["key"] << '\n';
+		std::cout << qini::INIWriter::fastWrite(ob) << '\n';
 
 	}
 	catch (const std::exception& e)
