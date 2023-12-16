@@ -1,4 +1,5 @@
-﻿#include <QuqiParser/Ini.h>
+﻿#include "Ini.h"
+#include <QuqiParser/Ini.h>
 
 #define INI_NAMESPACE_START namespace qini {
 #define INI_NAMESPACE_END }
@@ -200,6 +201,19 @@ INIObject qini::INIParser::fastParse(std::string_view data)
 {
 	static INIParser parser;
 	return parser.parse(data);
+}
+
+INIObject qini::INIParser::fastParse(std::ifstream& infile)
+{
+	infile.seekg(0, std::ios_base::end);
+	size_t size = infile.tellg();
+	infile.seekg(0, std::ios_base::beg);
+	std::string buffer;
+	buffer.resize(size);
+	infile.read(buffer.data(), size);
+	infile.close();
+
+	return std::move(INIParser::fastParse(buffer));
 }
 
 bool INIParser::skipSpace(std::string_view::iterator& i, std::string_view data, long long& error_line)

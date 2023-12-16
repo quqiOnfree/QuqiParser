@@ -141,10 +141,7 @@ namespace qini
 		*/
 		static INIObject fastParse(std::string_view data);
 
-		/*INIObject parse(std::ifstream& file)
-		{
-			INIObject localObject;
-		}*/
+		static INIObject fastParse(std::ifstream& infile);
 
 	protected:
 		bool skipSpace(std::string_view::iterator& i, std::string_view data, long long& error_line);

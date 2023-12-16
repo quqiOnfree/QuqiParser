@@ -161,7 +161,7 @@ INIObject object = INIParser::fastParse(data);
 
 ```
 
-2. 读取文件（还在编写）
+2. 读取文件
 ```cpp
 std::ifstream file(/*path*/);
 INIObject object = INIParser::fastParse(file);
