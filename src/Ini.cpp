@@ -1,5 +1,4 @@
-﻿#include "Ini.h"
-#include <QuqiParser/Ini.h>
+﻿#include <QuqiParser/Ini.h>
 
 #define INI_NAMESPACE_START namespace qini {
 #define INI_NAMESPACE_END }
