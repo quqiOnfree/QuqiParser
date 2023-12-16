@@ -68,6 +68,51 @@ namespace qini
 			std::unordered_map<std::string, std::string>& m_keys;
 		};
 
+		class Const_Section
+		{
+		public:
+			class const_iterator
+			{
+			public:
+				const_iterator(const std::unordered_map<std::string, std::string>::const_iterator& itor);
+
+				const_iterator(std::unordered_map<std::string, std::string>::const_iterator&& itor);
+
+				const_iterator& operator ++();
+
+				std::string operator *();
+
+				friend bool operator ==(const const_iterator& a, const const_iterator& b);
+
+				friend bool operator !=(const const_iterator& a, const const_iterator& b);
+
+			private:
+				std::unordered_map<std::string, std::string>::const_iterator m_itor;
+			};
+
+			Const_Section(const std::unordered_map<std::string, std::string>& section);
+
+			Const_Section(const Section&) = delete;
+			Const_Section(Section&&) = delete;
+
+			Const_Section& operator =(const Section&) = delete;
+			Const_Section& operator =(Section&&) = delete;
+
+			/*
+			* @brief 获取键值
+			* @param keyName 节名
+			* @return std::string& 键对应的值
+			*/
+			const std::string& operator [](const std::string& keyName) const;
+
+			const_iterator begin();
+
+			const_iterator end();
+
+		private:
+			const std::unordered_map<std::string, std::string>& m_keys;
+		};
+
 		class iterator
 		{
 		public:
@@ -87,6 +132,25 @@ namespace qini
 			std::unordered_map<std::string, std::unordered_map<std::string, std::string>>::iterator m_itor;
 		};
 
+		class const_iterator
+		{
+		public:
+			const_iterator(const std::unordered_map<std::string, std::unordered_map<std::string, std::string>>::const_iterator& itor);
+
+			const_iterator(std::unordered_map<std::string, std::unordered_map<std::string, std::string>>::const_iterator&& itor);
+
+			const_iterator& operator ++();
+
+			Const_Section operator *();
+
+			friend bool operator ==(const const_iterator& a, const const_iterator& b);
+
+			friend bool operator !=(const const_iterator& a, const const_iterator& b);
+
+		private:
+			std::unordered_map<std::string, std::unordered_map<std::string, std::string>>::const_iterator m_itor;
+		};
+
 		INIObject() = default;
 
 		INIObject(const INIObject& ob);
@@ -104,7 +168,9 @@ namespace qini
 		* @param sectionName 节名
 		* @return Section 节类
 		*/
-		Section operator [](const std::string sectionName);
+		Section operator [](const std::string& sectionName);
+
+		Const_Section operator [](const std::string& sectionName) const;
 
 		iterator begin();
 

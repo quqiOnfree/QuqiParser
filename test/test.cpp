@@ -50,6 +50,15 @@ word=hello #asdasdas
 		std::cout << e.what() << '\n';
 	}
 	
+	try
+	{
+		qini::INIObject ob;
+		ob["a"]["b"] = "1231";
+	}
+	catch (const std::exception& e)
+	{
+		std::cout << e.what() << '\n';
+	}
 
 	return 0;
 }
