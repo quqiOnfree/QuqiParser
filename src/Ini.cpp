@@ -315,7 +315,7 @@ INIObject qini::INIParser::fastParse(std::ifstream& infile)
 
 bool INIParser::skipSpace(std::string_view::iterator& i, std::string_view data, long long& error_line)
 {
-	while (i != data.end() && (*i == ' ' || *i == '\n' || *i == '\t' || *i == ';' || *i == '#'))
+	while (i != data.end() && (*i == ' ' || *i == '\n' || *i == '\t' || *i == ';' || *i == '#' || *i == '\0'))
 	{
 		if (*i == ';' || *i == '#')
 		{
