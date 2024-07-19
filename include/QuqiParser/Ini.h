@@ -1,4 +1,18 @@
-﻿#ifndef INI_HPP
+﻿//    Copyright 2023-2024 Xuan Xiao
+//
+//    Licensed under the Apache License, Version 2.0 (the "License");
+//    you may not use this file except in compliance with the License.
+//    You may obtain a copy of the License at
+//
+//        http://www.apache.org/licenses/LICENSE-2.0
+//
+//    Unless required by applicable law or agreed to in writing, software
+//    distributed under the License is distributed on an "AS IS" BASIS,
+//    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//    See the License for the specific language governing permissions and
+//    limitations under the License.
+
+#ifndef INI_HPP
 #define INI_HPP
 
 #include <unordered_map>
@@ -13,12 +27,21 @@ namespace qini
     class INIParser;
     class INIWriter;
 
+    /**
+     * @brief Class representing an INI object.
+     */
     class INIObject
     {
     public:
+        /**
+         * @brief Class representing a mutable section within an INI object.
+         */
         class Section
         {
         public:
+            /**
+             * @brief Iterator class for iterating over keys in a mutable section.
+             */
             class iterator
             {
             public:
@@ -46,18 +69,8 @@ namespace qini
             Section& operator =(const Section&) = delete;
             Section& operator =(Section&&) = delete;
 
-            /*
-            * @brief 获取键值
-            * @param keyName 节名
-            * @return std::string& 键对应的值
-            */
             std::string& operator [](const std::string& keyName);
 
-            /*
-            * @brief 获取键值
-            * @param keyName 节名
-            * @return std::string& 键对应的值
-            */
             const std::string& operator [](const std::string& keyName) const;
 
             iterator begin();
@@ -68,9 +81,15 @@ namespace qini
             std::unordered_map<std::string, std::string>& m_keys;
         };
 
+        /**
+         * @brief Class representing an immutable section within an INI object.
+         */
         class Const_Section
         {
         public:
+            /**
+             * @brief Iterator class for iterating over keys in an immutable section.
+             */
             class const_iterator
             {
             public:
@@ -98,11 +117,6 @@ namespace qini
             Const_Section& operator =(const Section&) = delete;
             Const_Section& operator =(Section&&) = delete;
 
-            /*
-            * @brief 获取键值
-            * @param keyName 节名
-            * @return std::string& 键对应的值
-            */
             const std::string& operator [](const std::string& keyName) const;
 
             const_iterator begin();
@@ -113,6 +127,9 @@ namespace qini
             const std::unordered_map<std::string, std::string>& m_keys;
         };
 
+        /**
+         * @brief Iterator class for iterating over sections in an INI object.
+         */
         class iterator
         {
         public:
@@ -132,6 +149,9 @@ namespace qini
             std::unordered_map<std::string, std::unordered_map<std::string, std::string>>::iterator m_itor;
         };
 
+        /**
+         * @brief Iterator class for iterating over const sections in an INI object.
+         */
         class const_iterator
         {
         public:
@@ -163,11 +183,6 @@ namespace qini
 
         INIObject& operator =(INIObject&& ob) noexcept;
 
-        /*
-        * @brief 获取节值
-        * @param sectionName 节名
-        * @return Section 节类
-        */
         Section operator [](const std::string& sectionName);
 
         Const_Section operator [](const std::string& sectionName) const;
@@ -187,26 +202,34 @@ namespace qini
         friend class INIWriter;
     };
 
+    /**
+     * @brief Class for parsing INI data.
+     */
     class INIParser
     {
     public:
         INIParser() = default;
         ~INIParser() = default;
 
-        /*
-        * @brief 解析数据
-        * @param data 数据
-        * @return INIObject ini数据
-        */
+        /**
+         * @brief Parses INI data from a string view.
+         * @param data The INI data to parse.
+         * @return The parsed INI object.
+         */
         INIObject parse(std::string_view data);
 
-        /*
-        * @brief 解析数据
-        * @param data 数据
-        * @return INIObject ini数据
-        */
+        /**
+         * @brief Quickly parses INI data from a string view.
+         * @param data The INI data to parse.
+         * @return The parsed INI object.
+         */
         static INIObject fastParse(std::string_view data);
 
+        /**
+         * @brief Quickly parses INI data from an input file stream.
+         * @param infile The input file stream.
+         * @return The parsed INI object.
+         */
         static INIObject fastParse(std::ifstream& infile);
 
     protected:
@@ -217,42 +240,43 @@ namespace qini
         std::string get_logic_error_string(long long error_line);
     };
 
+    /**
+     * @brief Class for writing INI data.
+     */
     class INIWriter
     {
     public:
         INIWriter() = default;
         ~INIWriter() = default;
 
-        /*
-        * @brief 写入数据
-        * @param INIObject 数据
-        * @return std::string 字符串数据
-        */
+        /**
+         * @brief Writes INI data from an INI object to a string.
+         * @param ob The INI object to write.
+         * @return The INI data as a string.
+         */
         std::string write(const INIObject& ob);
 
-        /*
-        * @brief 写入数据到文件
-        * @param INIObject 数据
-        * @param std::ofstream 文件流
-        * @return true 成功
-        * @return false 失败
-        */
+        /**
+         * @brief Writes INI data from an INI object to a file.
+         * @param ob The INI object to write.
+         * @param file The output file stream.
+         * @return true if successful, false otherwise.
+         */
         bool write(const INIObject& ob, std::ofstream& file);
 
-        /*
-        * @brief 写入数据
-        * @param INIObject 数据
-        * @return std::string 字符串数据
-        */
+        /**
+         * @brief Quickly writes INI data from an INI object to a string.
+         * @param ob The INI object to write.
+         * @return The INI data as a string.
+         */
         static std::string fastWrite(const INIObject& ob);
 
-        /*
-        * @brief 写入数据到文件
-        * @param INIObject 数据
-        * @param std::ofstream 文件流
-        * @return true 成功
-        * @return false 失败
-        */
+        /**
+         * @brief Quickly writes INI data from an INI object to a file.
+         * @param ob The INI object to write.
+         * @param file The output file stream.
+         * @return true if successful, false otherwise.
+         */
         static bool fastWrite(const INIObject& ob, std::ofstream& file);
     };
 }
