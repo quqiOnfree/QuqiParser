@@ -19,7 +19,6 @@
 #include <string>
 #include <string_view>
 #include <fstream>
-#include <format>
 #include <stdexcept>
 
 namespace qini
